@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:quiz_bot/bot-ui/HomePage.dart';
+
+import 'bot-ui/HomePage.dart';
 
 void main() {
   runApp(QuizApp());

@@ -1,70 +1,83 @@
-
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ResultPage extends StatelessWidget {
   final int score;
-  final int total;
+  final VoidCallback onRestart;
 
-  ResultPage({required this.score, required this.total});
+  const ResultPage({Key? key, required this.score, required this.onRestart})
+    : super(key: key);
+
+  String getResultText() {
+    if (score >= 90) return "🔥 Ajoyib natija!";
+    if (score >= 75) return "✅ Yaxshi ish!";
+    if (score >= 50) return "💪 Harakat qilish kerak";
+    return "😥 Ko‘proq mashq qil";
+  }
+
+  Color getColor() {
+    if (score >= 90) return Colors.greenAccent;
+    if (score >= 75) return Colors.blueAccent;
+    if (score >= 50) return Colors.orangeAccent;
+    return Colors.redAccent;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final textColor = getColor();
+    final resultText = getResultText();
+
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue.shade900, Colors.blue.shade600],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Center(
+      backgroundColor: const Color(0xFF1E1E2E),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Icon(Icons.emoji_events, size: 100, color: textColor),
+              const SizedBox(height: 20),
               Text(
-                "Sizning natijangiz",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              SizedBox(height: 10),
-              Text(
-                "$score / $total",
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: BarChart(
-                  BarChartData(
-                    barGroups: [
-                      BarChartGroupData(
-                        x: 1,
-                        barRods: [BarChartRodData(toY: score.toDouble(), color: Colors.green)],
-                      ),
-                      BarChartGroupData(
-                        x: 2,
-                        barRods: [BarChartRodData(toY: (total - score).toDouble(), color: Colors.red)],
-                      ),
-                    ],
-                  ),
+                "Natijangiz:",
+                style: GoogleFonts.poppins(
+                  fontSize: 28,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+              const SizedBox(height: 10),
+              Text(
+                "$score%",
+                style: GoogleFonts.poppins(
+                  fontSize: 64,
+                  color: textColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                resultText,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(fontSize: 22, color: textColor),
+              ),
+              const SizedBox(height: 40),
+              ElevatedButton.icon(
+                onPressed: onRestart,
+                icon: const Icon(Icons.replay),
+                label: Text(
+                  "Qayta boshlash",
+                  style: GoogleFonts.poppins(fontSize: 18),
+                ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.blueAccent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                  backgroundColor: textColor,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 14,
                   ),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  child: Text("Qayta boshlash", style: TextStyle(fontSize: 18)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ],
