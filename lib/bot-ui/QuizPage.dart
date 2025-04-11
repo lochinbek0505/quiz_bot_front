@@ -24,12 +24,65 @@ class _QuizPageState extends State<QuizPage> {
   Timer? timer;
   int? selectedIndex;
 
-  final String userId = "demo_user"; // Aslida Firebase Auth orqali olinadi
-  final String username = "Test User";
+  String userId = "demo_user"; // Aslida Firebase Auth orqali olinadi
+  String username = "Test User";
+
+  Future<String?> showNameDialog(BuildContext context) async {
+    final TextEditingController nameController = TextEditingController();
+
+    // Show the dialog and return the entered name
+    return showDialog<String>(
+      context: context,
+      barrierDismissible:
+          false, // Prevent dismissing the dialog by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            "Iltimos ismingizni kiriting",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: "Iltimos ismingizni kiriting",
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(
+                  context,
+                ).pop(); // Close the dialog without returning any value
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                final name = nameController.text.trim();
+                if (name.isNotEmpty) {
+                  // Close the dialog and return the name entered
+                  Navigator.of(context).pop(name);
+                } else {
+                  // Show an error message if the name is empty
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Iltimos ismingizni kiriting.")),
+                  );
+                }
+              },
+              child: Text("Submit"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
     super.initState();
+    showNameDialog(context);
+
     loadTests();
   }
 
@@ -87,8 +140,10 @@ class _QuizPageState extends State<QuizPage> {
       context,
       MaterialPageRoute(
         builder:
-            (_) =>
-                ResultPage(score: ((correctAnswers / tests.length) * 100) ~/ 1),
+            (_) => ResultPage(
+              score: ((correctAnswers / tests.length) * 100) ~/ 1,
+              examId: widget.examId,
+            ),
       ),
     );
   }

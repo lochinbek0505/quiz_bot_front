@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "851715261172",
+    "project_id": "shopapp3-9dfa3",
+    "storage_bucket": "shopapp3-9dfa3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851715261172:android:ecd1ae2441d66503c354a1",
+        "android_client_info": {
+          "package_name": "com.example.quiz_bot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmPuPJqRa8AT77LrWRYDdabwc3B9ekgu0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851715261172:android:2cef8592151f2432c354a1",
+        "android_client_info": {
+          "package_name": "com.wordpress.lochindasturlari.shopadminapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmPuPJqRa8AT77LrWRYDdabwc3B9ekgu0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851715261172:android:8aff247e9bf913dfc354a1",
+        "android_client_info": {
+          "package_name": "com.wordpress.lochindasturlari.shopapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmPuPJqRa8AT77LrWRYDdabwc3B9ekgu0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

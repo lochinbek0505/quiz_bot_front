@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quiz_bot/bot-ui/RatePage.dart';
 
 class ResultPage extends StatelessWidget {
   final int score;
+  final String examId;
 
-  const ResultPage({Key? key, required this.score}) : super(key: key);
+  const ResultPage({Key? key, required this.score, required this.examId})
+    : super(key: key);
 
   String getResultText() {
     if (score >= 90) return "🔥 Ajoyib natija!";
@@ -60,10 +63,17 @@ class ResultPage extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.replay),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (builder) => RatingPage(examId: examId),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.star_rate),
                 label: Text(
-                  "Qayta boshlash",
+                  "Reyting",
                   style: GoogleFonts.poppins(fontSize: 18),
                 ),
                 style: ElevatedButton.styleFrom(
