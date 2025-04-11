@@ -3,10 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 class ResultPage extends StatelessWidget {
   final int score;
-  final VoidCallback onRestart;
 
-  const ResultPage({Key? key, required this.score, required this.onRestart})
-    : super(key: key);
+  const ResultPage({Key? key, required this.score}) : super(key: key);
 
   String getResultText() {
     if (score >= 90) return "🔥 Ajoyib natija!";
@@ -62,7 +60,7 @@ class ResultPage extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               ElevatedButton.icon(
-                onPressed: onRestart,
+                onPressed: () {},
                 icon: const Icon(Icons.replay),
                 label: Text(
                   "Qayta boshlash",
