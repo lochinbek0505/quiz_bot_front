@@ -23,6 +23,7 @@ class _QuizPageState extends State<QuizPage> {
   int totalTime = 60;
   Timer? timer;
   int? selectedIndex;
+  final TextEditingController writtenAnswerController = TextEditingController();
 
   String userId = "demo_user";
   String username = "Test User";
@@ -77,6 +78,7 @@ class _QuizPageState extends State<QuizPage> {
       if (name != null && mounted) {
         setState(() {
           username = name;
+          userId = name.toLowerCase().trim();
         });
         await loadTests();
       }
@@ -85,6 +87,7 @@ class _QuizPageState extends State<QuizPage> {
 
   void startTimer(int duration) {
     totalTime = duration * 60;
+    print(totalTime);
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (totalTime > 0) {
@@ -100,6 +103,7 @@ class _QuizPageState extends State<QuizPage> {
   Future<void> loadTests() async {
     final result = await _testService.getExamWithTests(widget.examId);
     final loadedTests = result['tests'] ?? [];
+    print("TEST TEST TEST ${result["duration"]}");
     final examDuration = result['duration'] ?? 60;
 
     if (mounted) {
@@ -111,14 +115,30 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   void nextQuestion() {
-    if (selectedIndex == tests[current]['correctAnswerIndex']) {
-      correctAnswers++;
+    bool isWritten = tests[current]['isWritten'] == true;
+
+    if (isWritten) {
+      // Agar yozma savol bo‘lsa
+      final correctWritten =
+          tests[current]['writtenAnswer'].toString().trim().toLowerCase();
+      final userWritten = writtenAnswerController.text.trim().toLowerCase();
+
+      if (correctWritten == userWritten && correctAnswers <= tests.length) {
+        correctAnswers++;
+      }
+    } else {
+      // Tanlanadigan savol bo‘lsa
+      if (selectedIndex == tests[current]['correctAnswerIndex'] &&
+          correctAnswers <= tests.length) {
+        correctAnswers++;
+      }
     }
 
     if (current < tests.length - 1) {
       setState(() {
         current++;
         selectedIndex = null;
+        writtenAnswerController.clear();
       });
     } else {
       timer?.cancel();
@@ -180,7 +200,7 @@ class _QuizPageState extends State<QuizPage> {
           children: [
             Text(
               "Savol ${current + 1} / ${tests.length} - "
-              "Daraja: ${question['difficulty'].toString().toUpperCase()}",
+              "Daraja: ${question['level'].toString().toUpperCase()}",
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
 
@@ -213,41 +233,57 @@ class _QuizPageState extends State<QuizPage> {
 
             const SizedBox(height: 24),
 
-            Expanded(
-              child: ListView.builder(
-                itemCount: question['options'].length,
-                itemBuilder: (context, index) {
-                  final isSelected = selectedIndex == index;
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedIndex = index;
-                      });
-                    },
-                    child: Card(
-                      color: isSelected ? Colors.blue : Colors.white,
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                          horizontal: 16,
-                        ),
-                        child: Text(
-                          question['options'][index],
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: isSelected ? Colors.white : Colors.black87,
+            question['isWritten'].toString() == "false"
+                ? Expanded(
+                  child: ListView.builder(
+                    itemCount: question['options'].length,
+                    itemBuilder: (context, index) {
+                      final isSelected = selectedIndex == index;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedIndex = index;
+                          });
+                        },
+                        child: Card(
+                          color: isSelected ? Colors.blue : Colors.white,
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                              horizontal: 16,
+                            ),
+                            child: Text(
+                              question['options'][index],
+                              style: TextStyle(
+                                fontSize: 16,
+                                color:
+                                    isSelected ? Colors.white : Colors.black87,
+                              ),
+                            ),
                           ),
                         ),
+                      );
+                    },
+                  ),
+                )
+                : Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: TextField(
+                    controller: writtenAnswerController,
+                    maxLines: 3,
+
+                    decoration: InputDecoration(
+                      labelText: "Javobingizni yozing",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
+                  ),
+                ),
 
             const SizedBox(height: 8),
             Padding(
@@ -256,7 +292,11 @@ class _QuizPageState extends State<QuizPage> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: selectedIndex != null ? nextQuestion : null,
+                  onPressed:
+                      question['isWritten'].toString() == "true" ||
+                              selectedIndex != null
+                          ? nextQuestion
+                          : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(

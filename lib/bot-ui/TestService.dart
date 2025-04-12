@@ -12,7 +12,7 @@ class TestService {
     }
 
     final examData = examDoc.data()!;
-    final duration = examData['time'] ?? 60; // daqiqalarda
+    final duration = examData['duration'] ?? 60; // daqiqalarda
     final difficulty = examData['difficulty'] ?? "o'rta";
     final examTitle = examData['title'] ?? "Noma'lum";
 
@@ -22,7 +22,6 @@ class TestService {
             .collection('exams')
             .doc(examId)
             .collection('tests')
-            .orderBy('order', descending: false) // agar tartib bor bo‘lsa
             .get();
 
     final tests =
@@ -52,7 +51,7 @@ class TestService {
     final score = ((correctAnswers / totalQuestions) * 100).round();
 
     await _firestore
-        .collection('results')
+        .collection('exams')
         .doc(examId)
         .collection('users')
         .doc(userId)
@@ -70,7 +69,7 @@ class TestService {
     final snapshot =
         await _firestore
             .collection('examId')
-            .doc('users')
+            .doc(examId)
             .collection('users')
             .orderBy('score', descending: true)
             .get();

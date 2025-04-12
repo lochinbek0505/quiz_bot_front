@@ -21,6 +21,10 @@ class ExamListPage extends StatelessWidget {
         backgroundColor: Colors.blue,
         elevation: 4,
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: Text("🏆"),
+      ),
       body: FutureBuilder<QuerySnapshot>(
         future: _firestore.collection('exams').get(),
         builder: (context, snapshot) {
