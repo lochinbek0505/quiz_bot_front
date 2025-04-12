@@ -15,8 +15,12 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
   final ExamService _examService = ExamService();
   final TextEditingController _titleController = TextEditingController();
 
-  Future<void> _showExamDialog({String? examId, String? currentTitle}) async {
-    _titleController.text = currentTitle ?? '';
+  Future<void> _showExamDialog({
+    String? examId,
+    Map<String, dynamic>? currentData,
+  }) async {
+    _titleController.text = currentData?['title'] ?? '';
+    _durationController.text = currentData?['duration']?.toString() ?? '';
 
     await showDialog(
       context: context,
@@ -25,33 +29,79 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
             title: Text(
               examId == null ? 'Imtihon yaratish' : 'Imtihonni tahrirlash',
             ),
-            content: TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Imtihon nomi',
-                border: OutlineInputBorder(),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.85, // kengroq qilish
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Imtihon nomi',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _durationController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Imtihon vaqti (daqiqada)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: const Text('Bekor qilish'),
               ),
               ElevatedButton(
                 onPressed: () async {
-                  if (examId == null) {
-                    await _examService.createExam(_titleController.text);
-                  } else {
-                    await _examService.editExam(examId, _titleController.text);
+                  final title = _titleController.text.trim();
+                  final duration = int.tryParse(
+                    _durationController.text.trim(),
+                  );
+
+                  if (title.isEmpty || duration == null || duration <= 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Iltimos, barcha maydonlarni to‘g‘ri to‘ldiring',
+                        ),
+                      ),
+                    );
+                    return;
                   }
+
+                  if (examId == null) {
+                    await _examService.createExam({
+                      'title': title,
+                      'duration': duration,
+                    });
+                  } else {
+                    await _examService.editExam(examId, {
+                      'title': title,
+                      'duration': duration,
+                    });
+                  }
+
                   Navigator.pop(context);
                 },
-                child: const Text('Save'),
+                child: const Text('Saqlash'),
               ),
             ],
           ),
     );
   }
+
+  // Qo‘shimcha kerakli controller
+  final TextEditingController _durationController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -75,48 +125,76 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
             itemBuilder: (context, index) {
               final exam = exams[index];
               final title = exam['title'];
+              final duration = exam['duration']; // vaqtni ham chiqaramiz
+
               return Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 6.0,
+                ),
                 child: Card(
-                  color: Colors.white,
-                  elevation: 4,
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
                   child: ListTile(
-                    leading: Icon(Icons.question_mark_sharp),
-                    title: Text(title),
-                    trailing: PopupMenuButton(
-                      onSelected: (value) async {
-                        if (value == 'edit') {
-                          await _showExamDialog(
-                            examId: exam.id,
-                            currentTitle: title,
-                          );
-                        } else if (value == 'delete') {
-                          await _examService.deleteExam(exam.id);
-                        }
-                      },
-                      itemBuilder:
-                          (_) => [
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: Text('Tahrirlash'),
-                            ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Text("O'chirish"),
-                            ),
-                          ],
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
                     ),
-                    onTap:
-                        () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (_) => TestListPage(
-                                  examId: exam.id,
-                                  examTitle: title,
-                                ),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.blue.shade100,
+                      child: Icon(Icons.quiz, color: Colors.blue.shade700),
+                    ),
+                    title: Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Vaqti: $duration daqiqa',
+                      style: TextStyle(color: Colors.grey.shade700),
+                    ),
+                    trailing: SizedBox(
+                      width: 90,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.orange),
+                            onPressed: () async {
+                              await _showExamDialog(
+                                examId: exam.id,
+                                currentData: {
+                                  'title': title,
+                                  'duration': duration,
+                                },
+                              );
+                            },
                           ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () async {
+                              await _examService.deleteExam(exam.id);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => TestListPage(
+                                examId: exam.id,
+                                examTitle: title,
+                              ),
                         ),
+                      );
+                    },
                   ),
                 ),
               );

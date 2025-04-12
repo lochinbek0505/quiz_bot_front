@@ -18,7 +18,7 @@ class QuizApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // go_router instansiyasini yaratish
     final GoRouter _router = GoRouter(
-      initialLocation: '/',
+      initialLocation: '/admin',
       routes: [
         // Home sahifasi
         GoRoute(

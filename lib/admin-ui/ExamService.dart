@@ -3,15 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ExamService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<String> createExam(String title) async {
-    final docRef = await _firestore.collection('exams').add({'title': title});
+  Future<String> createExam(Map<String, dynamic> map) async {
+    final docRef = await _firestore.collection('exams').add(map);
     return docRef.id;
   }
 
-  Future<void> editExam(String examId, String newTitle) async {
-    await _firestore.collection('exams').doc(examId).update({
-      'title': newTitle,
-    });
+  Future<void> editExam(String examId, Map<String, dynamic> map) async {
+    await _firestore.collection('exams').doc(examId).update(map);
   }
 
   Future<void> deleteExam(String examId) async {
