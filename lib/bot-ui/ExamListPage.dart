@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:quiz_bot/bot-ui/SelectRating.dart';
 
 import 'QuizPage.dart'; // QuizPage shu faylda bo‘lishi kerak
 
@@ -22,7 +23,12 @@ class ExamListPage extends StatelessWidget {
         elevation: 4,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (builder) => RatingPage()),
+          );
+        },
         child: Text("🏆"),
       ),
       body: FutureBuilder<QuerySnapshot>(
@@ -58,7 +64,7 @@ class ExamListPage extends StatelessWidget {
                     backgroundColor: Colors.blue.shade100,
                     child: Icon(Icons.school, color: Colors.blue),
                   ),
-                  subtitle: Text("Imtihon vaqti ${exam['duration']}"),
+                  subtitle: Text("Imtihon vaqti ${exam['duration']} minut"),
                   title: Text(
                     title,
                     style: theme.textTheme.titleMedium!.copyWith(

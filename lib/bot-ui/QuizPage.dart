@@ -123,13 +123,13 @@ class _QuizPageState extends State<QuizPage> {
           tests[current]['writtenAnswer'].toString().trim().toLowerCase();
       final userWritten = writtenAnswerController.text.trim().toLowerCase();
 
-      if (correctWritten == userWritten && correctAnswers <= tests.length) {
+      if (correctWritten == userWritten && correctAnswers < tests.length) {
         correctAnswers++;
       }
     } else {
       // Tanlanadigan savol bo‘lsa
       if (selectedIndex == tests[current]['correctAnswerIndex'] &&
-          correctAnswers <= tests.length) {
+          correctAnswers < tests.length) {
         correctAnswers++;
       }
     }

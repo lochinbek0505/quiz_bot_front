@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class RatingPage extends StatefulWidget {
@@ -46,6 +47,12 @@ class _RatingPageState extends State<RatingPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A), // dark blue-gray
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            GoRouter.of(context).push("/");
+          },
+          icon: Icon(Icons.home, color: Colors.white),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
