@@ -24,53 +24,44 @@ class _QuizPageState extends State<QuizPage> {
   Timer? timer;
   int? selectedIndex;
 
-  String userId = "demo_user"; // Aslida Firebase Auth orqali olinadi
+  String userId = "demo_user";
   String username = "Test User";
 
   Future<String?> showNameDialog(BuildContext context) async {
     final TextEditingController nameController = TextEditingController();
 
-    // Show the dialog and return the entered name
     return showDialog<String>(
       context: context,
-      barrierDismissible:
-          false, // Prevent dismissing the dialog by tapping outside
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
-            "Iltimos ismingizni kiriting",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          title: const Text("Iltimos ismingizni kiriting"),
           content: TextField(
             controller: nameController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              hintText: "Iltimos ismingizni kiriting",
+              hintText: "Ismingizni kiriting",
             ),
           ),
           actions: <Widget>[
             TextButton(
-              onPressed: () {
-                Navigator.of(
-                  context,
-                ).pop(); // Close the dialog without returning any value
-              },
-              child: Text("Cancel"),
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Bekor qilish"),
             ),
             TextButton(
               onPressed: () {
                 final name = nameController.text.trim();
                 if (name.isNotEmpty) {
-                  // Close the dialog and return the name entered
                   Navigator.of(context).pop(name);
                 } else {
-                  // Show an error message if the name is empty
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Iltimos ismingizni kiriting.")),
+                    const SnackBar(
+                      content: Text("Iltimos ismingizni kiriting."),
+                    ),
                   );
                 }
               },
-              child: Text("Submit"),
+              child: const Text("Kiritish"),
             ),
           ],
         );
@@ -81,14 +72,20 @@ class _QuizPageState extends State<QuizPage> {
   @override
   void initState() {
     super.initState();
-    showNameDialog(context);
-
-    loadTests();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final name = await showNameDialog(context);
+      if (name != null && mounted) {
+        setState(() {
+          username = name;
+        });
+        await loadTests();
+      }
+    });
   }
 
-  void startTimer() {
-    totalTime = 60;
-    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+  void startTimer(int duration) {
+    totalTime = duration * 60;
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (totalTime > 0) {
           totalTime--;
@@ -101,19 +98,21 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   Future<void> loadTests() async {
-    final loadedTests = await _testService.getTests(widget.examId);
+    final result = await _testService.getExamWithTests(widget.examId);
+    final loadedTests = result['tests'] ?? [];
+    final examDuration = result['duration'] ?? 60;
+
     if (mounted) {
       setState(() {
-        tests = loadedTests;
+        tests = List<Map<String, dynamic>>.from(loadedTests);
       });
-      startTimer();
+      startTimer(examDuration);
     }
   }
 
   void nextQuestion() {
     if (selectedIndex == tests[current]['correctAnswerIndex']) {
       correctAnswers++;
-      print(correctAnswers);
     }
 
     if (current < tests.length - 1) {
@@ -141,11 +140,17 @@ class _QuizPageState extends State<QuizPage> {
       MaterialPageRoute(
         builder:
             (_) => ResultPage(
-              score: ((correctAnswers / tests.length) * 100) ~/ 1,
+              score: ((correctAnswers / tests.length) * 100).floor(),
               examId: widget.examId,
             ),
       ),
     );
+  }
+
+  String formatTime(int seconds) {
+    int minutes = seconds ~/ 60;
+    int remainingSeconds = seconds % 60;
+    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -153,7 +158,7 @@ class _QuizPageState extends State<QuizPage> {
     if (tests.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: Text(widget.examTitle)),
-        body: Center(child: CircularProgressIndicator()),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -162,7 +167,10 @@ class _QuizPageState extends State<QuizPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(widget.examTitle, style: TextStyle(color: Colors.white)),
+        title: Text(
+          widget.examTitle,
+          style: const TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.blue,
       ),
       body: Padding(
@@ -170,32 +178,41 @@ class _QuizPageState extends State<QuizPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Savol raqami
             Text(
-              "Savol ${current + 1} / ${tests.length}",
+              "Savol ${current + 1} / ${tests.length} - "
+              "Daraja: ${question['difficulty'].toString().toUpperCase()}",
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
 
-            /// Vaqt progressi
-            SizedBox(height: 8),
-            LinearProgressIndicator(
-              value: totalTime / 60,
-              minHeight: 8,
-              backgroundColor: Colors.grey.shade300,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: LinearProgressIndicator(
+                    value: totalTime / 60,
+                    minHeight: 8,
+                    backgroundColor: Colors.grey.shade300,
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Colors.blue,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  formatTime(totalTime),
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
             ),
 
-            SizedBox(height: 24),
-
-            /// Savol matni
+            const SizedBox(height: 24),
             Text(
               question['question'],
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-            /// Variantlar
             Expanded(
               child: ListView.builder(
                 itemCount: question['options'].length,
@@ -232,21 +249,16 @@ class _QuizPageState extends State<QuizPage> {
               ),
             ),
 
-            /// Keyingi tugma
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
                   onPressed: selectedIndex != null ? nextQuestion : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 14,
-                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

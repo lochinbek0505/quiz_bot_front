@@ -54,6 +54,7 @@ class ExamListPage extends StatelessWidget {
                     backgroundColor: Colors.blue.shade100,
                     child: Icon(Icons.school, color: Colors.blue),
                   ),
+                  subtitle: Text("Imtihon vaqti ${exam['duration']}"),
                   title: Text(
                     title,
                     style: theme.textTheme.titleMedium!.copyWith(
