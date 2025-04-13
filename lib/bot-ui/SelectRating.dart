@@ -21,12 +21,12 @@ class _SelectRatingPageState extends State<SelectRatingPage> {
   }
 
   Future<void> loadExams() async {
-    final querySnapshot = await _firestore.collection('exams').get();
+    final querySnapshot = await _firestore.collection('groups').get();
 
     List<Map<String, dynamic>> loadedExams = [];
 
     for (var doc in querySnapshot.docs) {
-      loadedExams.add({'id': doc.id, 'title': doc['title'] ?? 'No title'});
+      loadedExams.add({'id': doc['title']});
     }
 
     setState(() {
@@ -37,7 +37,7 @@ class _SelectRatingPageState extends State<SelectRatingPage> {
   Future<void> loadRanking(String examId) async {
     final querySnapshot =
         await _firestore
-            .collection('exams')
+            .collection('result')
             .doc(examId)
             .collection('users')
             .orderBy('score', descending: true)
@@ -92,7 +92,7 @@ class _SelectRatingPageState extends State<SelectRatingPage> {
                     return DropdownMenuItem<String>(
                       value: exam['id'],
                       child: Text(
-                        exam['title'],
+                        exam['id'],
                         style: const TextStyle(color: Colors.black),
                       ),
                     );

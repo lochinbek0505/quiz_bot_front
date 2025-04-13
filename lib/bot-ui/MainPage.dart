@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_bot/bot-ui/ExamListPage.dart';
 import 'package:quiz_bot/bot-ui/SelectRating.dart';
@@ -15,9 +16,19 @@ class Mainpage extends StatefulWidget {
 class _MainpageState extends State<Mainpage> {
   int selecatedIndex = 0;
   var pages = [ExamListPage(), SelectRatingPage(), Settingspage()];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<String?> showNameDialog(BuildContext context) async {
     final TextEditingController nameController = TextEditingController();
+    String? selectedGroup;
+
+    // Fetch the list of groups from Firestore
+    final querySnapshot = await _firestore.collection('groups').get();
+
+    List<String> groups = [];
+    for (var doc in querySnapshot.docs) {
+      groups.add(doc['title']); // Adding group IDs to the list
+    }
 
     return showDialog<String>(
       context: context,
@@ -25,12 +36,38 @@ class _MainpageState extends State<Mainpage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Iltimos ismingizni kiriting"),
-          content: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: "Ismingizni kiriting",
-            ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Ismingizni kiriting",
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (groups.isNotEmpty)
+                DropdownButton<String>(
+                  hint: const Text("Guruhni tanlang"),
+                  value: selectedGroup,
+                  isExpanded: true,
+                  items:
+                      groups.map<DropdownMenuItem<String>>((String group) {
+                        return DropdownMenuItem<String>(
+                          value: group,
+                          child: Text(group),
+                        );
+                      }).toList(),
+                  onChanged: (String? newGroup) {
+                    setState(() {
+                      selectedGroup = newGroup;
+                      CacheService pref = new CacheService();
+                      pref.saveData("group", selectedGroup!);
+                    });
+                  },
+                ),
+            ],
           ),
           actions: <Widget>[
             TextButton(
@@ -42,12 +79,14 @@ class _MainpageState extends State<Mainpage> {
                 final name = nameController.text.trim();
                 CacheService pref = CacheService();
                 pref.saveData("name", name);
-                if (name.isNotEmpty) {
-                  Navigator.of(context).pop(name);
+
+                if (name.isNotEmpty && selectedGroup != null) {
+                  // Proceed with both name and selected group
+                  Navigator.of(context).pop('$name, $selectedGroup');
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text("Iltimos ismingizni kiriting."),
+                      content: Text("Iltimos ismingizni va guruhni kiriting."),
                     ),
                   );
                 }
@@ -66,17 +105,16 @@ class _MainpageState extends State<Mainpage> {
   Future<void> load() async {
     CacheService pref = CacheService();
 
-    username = (await pref.getData("name"))!;
+    // Get the username from CacheService
+    try {
+      username = await pref.getData("name") ?? "";
+    } catch (e) {}
+    print(" username = $username");
+
+    // If username is empty, show the dialog to get the username
     if (username.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        final name = await showNameDialog(context);
-        if (name != null && mounted) {
-          setState(() {
-            username = name;
-          });
-        }
-      });
-    }
+      await showNameDialog(context);
+    } else {}
   }
 
   @override
@@ -94,7 +132,6 @@ class _MainpageState extends State<Mainpage> {
             icon: Image.asset("assets/home.png", width: 25, height: 25),
             label: "",
           ),
-
           BottomNavigationBarItem(
             icon: Image.asset("assets/cup.png", width: 25, height: 25),
             label: "",

@@ -1,7 +1,9 @@
 import 'dart:html';
 
 class CacheService {
-  // SharedPreferences instansiyasi
+  // Klassni konstruktori
+  CacheService() {}
+
   // Keshga ma'lumotni saqlash
   Future<void> saveData(String key, String value) async {
     window.localStorage[key] = value;

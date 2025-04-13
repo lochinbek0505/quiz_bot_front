@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final tg = TelegramWebApp.instance; // Telegram API instance
     final router = GoRouter(
-      initialLocation: '/admin',
+      initialLocation: '/',
       redirect: (context, state) {
         final uri = state.uri;
 
@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
       ],
       errorPageBuilder:
           (context, state) => MaterialPage(
-            child: MainAdminPage(), // fallback page
+            child: Mainpage(), // fallback page
           ),
     );
     return MaterialApp.router(

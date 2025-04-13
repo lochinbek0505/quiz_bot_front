@@ -28,11 +28,13 @@ class _QuizPageState extends State<QuizPage> {
 
   String userId = "demo_user";
   String username = "Test User";
-
+  String group = "";
   Future<void> load() async {
     CacheService pref = new CacheService();
 
     username = (await pref.getData("name"))!;
+    group = (await pref.getData("group"))!;
+
     userId = username.toLowerCase();
     await loadTests();
   }
@@ -112,6 +114,7 @@ class _QuizPageState extends State<QuizPage> {
       username: username,
       correctAnswers: correctAnswers,
       totalQuestions: tests.length,
+      group: group,
     );
 
     Navigator.pushReplacement(

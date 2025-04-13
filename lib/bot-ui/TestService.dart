@@ -2,6 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TestService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  Future<void> loadExams() async {
+    final querySnapshot = await _firestore.collection('groups').get();
+
+    List<Map<String, dynamic>> loadedExams = [];
+
+    for (var doc in querySnapshot.docs) {
+      loadedExams.add({
+        'title': doc.id,
+        'description': doc['description'] ?? 'No title',
+      });
+    }
+  }
 
   /// Imtihon testlarini yuklash (va imtihonning umumiy ma'lumotlari)
   Future<Map<String, dynamic>> getExamWithTests(String examId) async {
@@ -47,12 +59,26 @@ class TestService {
     required String username,
     required int correctAnswers,
     required int totalQuestions,
+    required String group,
   }) async {
     final score = ((correctAnswers / totalQuestions) * 100).round();
 
     await _firestore
         .collection('exams')
         .doc(examId)
+        .collection('users')
+        .doc(userId)
+        .set({
+          'username': username,
+          'correctAnswers': correctAnswers,
+          'totalQuestions': totalQuestions,
+          'score': score,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+
+    await _firestore
+        .collection('result')
+        .doc(group)
         .collection('users')
         .doc(userId)
         .set({
