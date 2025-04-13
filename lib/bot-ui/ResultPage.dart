@@ -335,32 +335,37 @@ class _ResultPageState extends State<ResultPage> {
                 style: GoogleFonts.poppins(fontSize: 22, color: textColor),
               ),
               const SizedBox(height: 40),
-              ElevatedButton.icon(
-                onPressed: () {
-                  _generateAndUploadPdf(widget.name, "G'ulomjon Abdullayev");
-                },
-                icon: const Icon(Icons.file_download),
-                label: Text(
-                  selectedLanguage == "Uzbek"
-                      ? "Sertifikatni yuklab olish"
-                      : selectedLanguage == "English"
-                      ? "Download Certificate"
-                      : "Скачать сертификат",
-                  style: GoogleFonts.poppins(fontSize: 18),
-                ),
+              widget.score > 80
+                  ? ElevatedButton.icon(
+                    onPressed: () {
+                      _generateAndUploadPdf(
+                        widget.name,
+                        "G'ulomjon Abdullayev",
+                      );
+                    },
+                    icon: const Icon(Icons.file_download),
+                    label: Text(
+                      selectedLanguage == "Uzbek"
+                          ? "Sertifikatni yuklab olish"
+                          : selectedLanguage == "English"
+                          ? "Download Certificate"
+                          : "Скачать сертификат",
+                      style: GoogleFonts.poppins(fontSize: 18),
+                    ),
 
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: textColor,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 14,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: textColor,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  )
+                  : SizedBox(),
               SizedBox(height: 20),
               ElevatedButton.icon(
                 onPressed: () {
