@@ -29,6 +29,7 @@ class _QuizPageState extends State<QuizPage> {
   String userId = "demo_user";
   String username = "Test User";
   String group = "";
+
   Future<void> load() async {
     CacheService pref = new CacheService();
 
@@ -124,6 +125,7 @@ class _QuizPageState extends State<QuizPage> {
             (_) => ResultPage(
               score: ((correctAnswers / tests.length) * 100).floor(),
               examId: widget.examId,
+              name: username,
             ),
       ),
     );
