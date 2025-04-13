@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:quiz_bot/admin-ui/CreateExamListPage.dart';
-import 'package:quiz_bot/bot-ui/ExamListPage.dart';
+import 'package:quiz_bot/admin-ui/MainAdminPage.dart';
+import 'package:quiz_bot/bot-ui/MainPage.dart';
 import 'package:telegram_web_app/telegram_web_app.dart';
 
 import 'firebase_options.dart';
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final tg = TelegramWebApp.instance; // Telegram API instance
     final router = GoRouter(
-      initialLocation: '/',
+      initialLocation: '/admin',
       redirect: (context, state) {
         final uri = state.uri;
 
@@ -42,15 +42,12 @@ class MyApp extends StatelessWidget {
         return null;
       },
       routes: [
-        GoRoute(path: '/', builder: (context, state) => ExamListPage()),
-        GoRoute(
-          path: '/admin',
-          builder: (context, state) => CreateExamListPage(),
-        ),
+        GoRoute(path: '/', builder: (context, state) => Mainpage()),
+        GoRoute(path: '/admin', builder: (context, state) => MainAdminPage()),
       ],
       errorPageBuilder:
           (context, state) => MaterialPage(
-            child: ExamListPage(), // fallback page
+            child: MainAdminPage(), // fallback page
           ),
     );
     return MaterialApp.router(

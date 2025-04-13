@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class RatingPage extends StatefulWidget {
+class SelectRatingPage extends StatefulWidget {
   @override
-  State<RatingPage> createState() => _RatingPageState();
+  State<SelectRatingPage> createState() => _SelectRatingPageState();
 }
 
-class _RatingPageState extends State<RatingPage> {
+class _SelectRatingPageState extends State<SelectRatingPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<Map<String, dynamic>> users = [];
   List<Map<String, dynamic>> exams = [];
@@ -57,9 +57,10 @@ class _RatingPageState extends State<RatingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        leading: SizedBox(),
+        backgroundColor: Colors.blue,
         elevation: 0,
         title: Text(
           "🏆 Reyting",
@@ -76,16 +77,11 @@ class _RatingPageState extends State<RatingPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Imtihonni tanlang:",
-              style: GoogleFonts.poppins(color: Colors.white, fontSize: 18),
-            ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              dropdownColor: Colors.grey.shade900,
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Colors.white12,
+                fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -97,7 +93,7 @@ class _RatingPageState extends State<RatingPage> {
                       value: exam['id'],
                       child: Text(
                         exam['title'],
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.black),
                       ),
                     );
                   }).toList(),
@@ -119,7 +115,7 @@ class _RatingPageState extends State<RatingPage> {
                           ? const Center(
                             child: Text(
                               "Imtihon tanlanmagan",
-                              style: TextStyle(color: Colors.white70),
+                              style: TextStyle(color: Colors.black54),
                             ),
                           )
                           : const Center(child: CircularProgressIndicator())
@@ -135,11 +131,11 @@ class _RatingPageState extends State<RatingPage> {
                                 gradient: LinearGradient(
                                   colors: [
                                     index == 0
-                                        ? Colors.amberAccent
+                                        ? Colors.orangeAccent
                                         : index == 1
-                                        ? Colors.grey.shade400
-                                        : Colors.brown.shade300,
-                                    Colors.black12,
+                                        ? Colors.deepPurple.shade200
+                                        : Colors.greenAccent.shade100,
+                                    Colors.white,
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -147,7 +143,7 @@ class _RatingPageState extends State<RatingPage> {
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: const [
                                   BoxShadow(
-                                    color: Colors.black38,
+                                    color: Colors.black12,
                                     blurRadius: 8,
                                     offset: Offset(0, 4),
                                   ),
@@ -175,46 +171,45 @@ class _RatingPageState extends State<RatingPage> {
                                   style: GoogleFonts.poppins(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.white,
+                                    color: Colors.deepOrange,
                                   ),
                                 ),
                                 trailing: Text(
                                   "${user['score']}%",
                                   style: GoogleFonts.poppins(
                                     fontSize: 18,
-                                    color: Colors.white,
+                                    color: Colors.deepPurple,
                                   ),
                                 ),
                               ),
                             );
                           } else {
                             return Card(
-                              color: Colors.white.withOpacity(0.05),
-                              elevation: 0,
+                              color: Colors.grey.shade100,
+                              elevation: 1,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               margin: const EdgeInsets.symmetric(vertical: 6),
                               child: ListTile(
                                 leading: CircleAvatar(
-                                  backgroundColor: Colors.white.withOpacity(
-                                    0.1,
-                                  ),
+                                  backgroundColor: Colors.orange.shade100
+                                      .withOpacity(0.5),
                                   child: Text(
                                     '${index + 1}',
-                                    style: const TextStyle(color: Colors.white),
+                                    style: const TextStyle(color: Colors.black),
                                   ),
                                 ),
                                 title: Text(
                                   user['name'],
                                   style: GoogleFonts.poppins(
-                                    color: Colors.white,
+                                    color: Colors.deepPurple,
                                   ),
                                 ),
                                 trailing: Text(
                                   "${user['score']}%",
                                   style: GoogleFonts.poppins(
-                                    color: Colors.white70,
+                                    color: Colors.teal,
                                   ),
                                 ),
                               ),

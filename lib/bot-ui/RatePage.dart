@@ -45,7 +45,9 @@ class _RatingPageState extends State<RatingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A), // dark blue-gray
+      backgroundColor: const Color(
+        0xFFEDF2F7,
+      ), // light gray background for daytime
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
@@ -53,7 +55,7 @@ class _RatingPageState extends State<RatingPage> {
           },
           icon: Icon(Icons.home, color: Colors.white),
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.blue,
         elevation: 0,
         title: Text(
           "🏆 Reyting",
@@ -76,26 +78,25 @@ class _RatingPageState extends State<RatingPage> {
                     final user = users[index];
 
                     if (index < 3) {
-                      // Top 3 design
                       return Container(
                         margin: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
                               index == 0
-                                  ? Colors.amberAccent
+                                  ? Colors.orangeAccent
                                   : index == 1
-                                  ? Colors.grey.shade400
-                                  : Colors.brown.shade300,
-                              Colors.black12,
+                                  ? Colors.deepPurple.shade200
+                                  : Colors.greenAccent.shade100,
+                              Colors.white,
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
+                          boxShadow: const [
                             BoxShadow(
-                              color: Colors.black38,
+                              color: Colors.black12,
                               blurRadius: 8,
                               offset: Offset(0, 4),
                             ),
@@ -111,7 +112,7 @@ class _RatingPageState extends State<RatingPage> {
                             backgroundColor: Colors.white,
                             child: Text(
                               '${index + 1}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
@@ -123,42 +124,45 @@ class _RatingPageState extends State<RatingPage> {
                             style: GoogleFonts.poppins(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: Colors.deepOrange,
                             ),
                           ),
                           trailing: Text(
                             "${user['score']}%",
                             style: GoogleFonts.poppins(
                               fontSize: 18,
-                              color: Colors.white,
+                              color: Colors.deepPurple,
                             ),
                           ),
                         ),
                       );
                     } else {
-                      // Others
                       return Card(
-                        color: Colors.white.withOpacity(0.05),
-                        elevation: 0,
+                        color: Colors.grey.shade100,
+                        elevation: 1,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         margin: const EdgeInsets.symmetric(vertical: 6),
                         child: ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: Colors.white.withOpacity(0.1),
+                            backgroundColor: Colors.orange.shade100.withOpacity(
+                              0.5,
+                            ),
                             child: Text(
                               '${index + 1}',
-                              style: TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Colors.black),
                             ),
                           ),
                           title: Text(
                             user['name'],
-                            style: GoogleFonts.poppins(color: Colors.white),
+                            style: GoogleFonts.poppins(
+                              color: Colors.deepPurple,
+                            ),
                           ),
                           trailing: Text(
                             "${user['score']}%",
-                            style: GoogleFonts.poppins(color: Colors.white70),
+                            style: GoogleFonts.poppins(color: Colors.teal),
                           ),
                         ),
                       );

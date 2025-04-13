@@ -1,33 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import 'ExamService.dart';
-import 'TestListPage.dart';
+import 'ExamService.dart'; // Ensure this file has the necessary methods for group operations
 
-class CreateExamListPage extends StatefulWidget {
-  const CreateExamListPage({super.key});
+class GroupListPage extends StatefulWidget {
+  const GroupListPage({super.key});
 
   @override
-  State<CreateExamListPage> createState() => _CreateExamListPageState();
+  State<GroupListPage> createState() => _GroupListPageState();
 }
 
-class _CreateExamListPageState extends State<CreateExamListPage> {
-  final ExamService _examService = ExamService();
+class _GroupListPageState extends State<GroupListPage> {
+  final ExamService _examService =
+      ExamService(); // Service for handling group operations
   final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
-  Future<void> _showExamDialog({
-    String? examId,
+  Future<void> _showGroupDialog({
+    String? groupId,
     Map<String, dynamic>? currentData,
   }) async {
     _titleController.text = currentData?['title'] ?? '';
-    _durationController.text = currentData?['duration']?.toString() ?? '';
+    _descriptionController.text = currentData?['description'] ?? '';
 
     await showDialog(
       context: context,
       builder:
           (_) => AlertDialog(
             title: Text(
-              examId == null ? 'Imtihon yaratish' : 'Imtihonni tahrirlash',
+              groupId == null ? 'Guruh yaratish' : 'Guruhni tahrirlash',
             ),
             content: SizedBox(
               width: MediaQuery.of(context).size.width * 0.85, // kengroq qilish
@@ -39,16 +40,15 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
                     TextField(
                       controller: _titleController,
                       decoration: const InputDecoration(
-                        labelText: 'Imtihon nomi',
+                        labelText: 'Guruh nomi',
                         border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 20),
                     TextField(
-                      controller: _durationController,
-                      keyboardType: TextInputType.number,
+                      controller: _descriptionController,
                       decoration: const InputDecoration(
-                        labelText: 'Imtihon vaqti (daqiqada)',
+                        labelText: 'Guruh tavsifi',
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -64,11 +64,9 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
               ElevatedButton(
                 onPressed: () async {
                   final title = _titleController.text.trim();
-                  final duration = int.tryParse(
-                    _durationController.text.trim(),
-                  );
+                  final description = _descriptionController.text.trim();
 
-                  if (title.isEmpty || duration == null || duration <= 0) {
+                  if (title.isEmpty || description.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
@@ -79,19 +77,19 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
                     return;
                   }
 
-                  if (examId == null) {
-                    await _examService.createExam({
+                  if (groupId == null) {
+                    // Create new group
+                    await _examService.createGroup({
                       'title': title,
-                      'duration': duration,
+                      'description': description,
                     });
                   } else {
-                    await _examService.editExam(examId, {
+                    // Edit existing group
+                    await _examService.editGroup(groupId, {
                       'title': title,
-                      'duration': duration,
+                      'description': description,
                     });
                   }
-
-                  Navigator.pop(context);
                 },
                 child: const Text('Saqlash'),
               ),
@@ -100,8 +98,12 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
     );
   }
 
-  // Qo‘shimcha kerakli controller
-  final TextEditingController _durationController = TextEditingController();
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,19 +111,19 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
       backgroundColor: Colors.grey.shade200,
 
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('exams').snapshots(),
+        stream: FirebaseFirestore.instance.collection('groups').snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData)
             return const Center(child: CircularProgressIndicator());
 
-          final exams = snapshot.data!.docs;
+          final groups = snapshot.data!.docs;
 
           return ListView.builder(
-            itemCount: exams.length,
+            itemCount: groups.length,
             itemBuilder: (context, index) {
-              final exam = exams[index];
-              final title = exam['title'];
-              final duration = exam['duration']; // vaqtni ham chiqaramiz
+              final group = groups[index];
+              final title = group['title'];
+              final description = group['description'];
 
               return Padding(
                 padding: const EdgeInsets.symmetric(
@@ -140,7 +142,7 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
                     ),
                     leading: CircleAvatar(
                       backgroundColor: Colors.blue.shade100,
-                      child: Icon(Icons.quiz, color: Colors.blue.shade700),
+                      child: Icon(Icons.group, color: Colors.blue.shade700),
                     ),
                     title: Text(
                       title,
@@ -150,7 +152,7 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
                       ),
                     ),
                     subtitle: Text(
-                      'Vaqti: $duration daqiqa',
+                      'Tavsifi: $description',
                       style: TextStyle(color: Colors.grey.shade700),
                     ),
                     trailing: SizedBox(
@@ -161,11 +163,11 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
                           IconButton(
                             icon: const Icon(Icons.edit, color: Colors.orange),
                             onPressed: () async {
-                              await _showExamDialog(
-                                examId: exam.id,
+                              await _showGroupDialog(
+                                groupId: group.id,
                                 currentData: {
                                   'title': title,
-                                  'duration': duration,
+                                  'description': description,
                                 },
                               );
                             },
@@ -173,24 +175,12 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () async {
-                              await _examService.deleteExam(exam.id);
+                              await _examService.deleteGroup(group.id);
                             },
                           ),
                         ],
                       ),
                     ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (_) => TestListPage(
-                                examId: exam.id,
-                                examTitle: title,
-                              ),
-                        ),
-                      );
-                    },
                   ),
                 ),
               );
@@ -199,7 +189,7 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showExamDialog(),
+        onPressed: () => _showGroupDialog(),
         child: const Icon(Icons.add),
       ),
     );

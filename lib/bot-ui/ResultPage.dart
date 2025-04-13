@@ -29,7 +29,7 @@ class ResultPage extends StatelessWidget {
     final resultText = getResultText();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1E1E2E),
+      backgroundColor: const Color(0xFFEDF2F7), // Light background for daytime
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 28.0),
@@ -42,7 +42,7 @@ class ResultPage extends StatelessWidget {
                 "Natijangiz:",
                 style: GoogleFonts.poppins(
                   fontSize: 28,
-                  color: Colors.white,
+                  color: Colors.black, // Dark color for text
                   fontWeight: FontWeight.bold,
                 ),
               ),

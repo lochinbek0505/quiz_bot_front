@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:quiz_bot/bot-ui/SelectRating.dart';
 
-import 'QuizPage.dart'; // QuizPage shu faylda bo‘lishi kerak
+import 'QuizPage.dart';
 
 class ExamListPage extends StatelessWidget {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -14,6 +13,7 @@ class ExamListPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
+        leading: SizedBox(),
         title: const Text(
           "Imtihonlar",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -21,15 +21,6 @@ class ExamListPage extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.blue,
         elevation: 4,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (builder) => RatingPage()),
-          );
-        },
-        child: Text("🏆"),
       ),
       body: FutureBuilder<QuerySnapshot>(
         future: _firestore.collection('exams').get(),

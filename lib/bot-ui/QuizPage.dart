@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'CacheService.dart';
 import 'ResultPage.dart';
 import 'TestService.dart';
 
@@ -28,61 +29,19 @@ class _QuizPageState extends State<QuizPage> {
   String userId = "demo_user";
   String username = "Test User";
 
-  Future<String?> showNameDialog(BuildContext context) async {
-    final TextEditingController nameController = TextEditingController();
+  Future<void> load() async {
+    CacheService pref = new CacheService();
 
-    return showDialog<String>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Iltimos ismingizni kiriting"),
-          content: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: "Ismingizni kiriting",
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text("Bekor qilish"),
-            ),
-            TextButton(
-              onPressed: () {
-                final name = nameController.text.trim();
-                if (name.isNotEmpty) {
-                  Navigator.of(context).pop(name);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Iltimos ismingizni kiriting."),
-                    ),
-                  );
-                }
-              },
-              child: const Text("Kiritish"),
-            ),
-          ],
-        );
-      },
-    );
+    username = (await pref.getData("name"))!;
+    userId = username.toLowerCase();
+    await loadTests();
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final name = await showNameDialog(context);
-      if (name != null && mounted) {
-        setState(() {
-          username = name;
-          userId = name.toLowerCase().trim();
-        });
-        await loadTests();
-      }
-    });
+
+    load();
   }
 
   void startTimer(int duration) {
@@ -177,7 +136,14 @@ class _QuizPageState extends State<QuizPage> {
   Widget build(BuildContext context) {
     if (tests.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: Text(widget.examTitle)),
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text(
+            widget.examTitle,
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.blue,
+        ),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
