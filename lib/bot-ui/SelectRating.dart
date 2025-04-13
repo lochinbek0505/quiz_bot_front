@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'CacheService.dart';
+
 class SelectRatingPage extends StatefulWidget {
   @override
   State<SelectRatingPage> createState() => _SelectRatingPageState();
@@ -11,6 +13,7 @@ class _SelectRatingPageState extends State<SelectRatingPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<Map<String, dynamic>> users = [];
   List<Map<String, dynamic>> exams = [];
+  String selectedLanguage = "";
 
   String? selectedExamId;
 
@@ -22,6 +25,9 @@ class _SelectRatingPageState extends State<SelectRatingPage> {
 
   Future<void> loadExams() async {
     final querySnapshot = await _firestore.collection('groups').get();
+    CacheService pref = CacheService();
+
+    selectedLanguage = (await pref.getData("lan"))!;
 
     List<Map<String, dynamic>> loadedExams = [];
 
@@ -63,7 +69,11 @@ class _SelectRatingPageState extends State<SelectRatingPage> {
         backgroundColor: Colors.blue,
         elevation: 0,
         title: Text(
-          "🏆 Reyting",
+          selectedLanguage == "Uzbek"
+              ? "🏆 Reyting"
+              : selectedLanguage == "English"
+              ? "🏆 Ranking"
+              : "🏆 Рейтинг",
           style: GoogleFonts.poppins(
             fontSize: 26,
             fontWeight: FontWeight.bold,
@@ -112,9 +122,13 @@ class _SelectRatingPageState extends State<SelectRatingPage> {
               child:
                   users.isEmpty
                       ? selectedExamId == null
-                          ? const Center(
+                          ? Center(
                             child: Text(
-                              "Imtihon tanlanmagan",
+                              selectedLanguage == "Uzbek"
+                                  ? "Imtihon tanlanmagan"
+                                  : selectedLanguage == "English"
+                                  ? "No exam selected"
+                                  : "Экзамен не выбран",
                               style: TextStyle(color: Colors.black54),
                             ),
                           )

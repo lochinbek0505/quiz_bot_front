@@ -25,7 +25,7 @@ class _QuizPageState extends State<QuizPage> {
   Timer? timer;
   int? selectedIndex;
   final TextEditingController writtenAnswerController = TextEditingController();
-
+  String selectedLanguage = "";
   String userId = "demo_user";
   String username = "Test User";
   String group = "";
@@ -35,6 +35,7 @@ class _QuizPageState extends State<QuizPage> {
 
     username = (await pref.getData("name"))!;
     group = (await pref.getData("group"))!;
+    selectedLanguage = (await pref.getData("lan"))!;
 
     userId = username.toLowerCase();
     await loadTests();
@@ -170,8 +171,11 @@ class _QuizPageState extends State<QuizPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Savol ${current + 1} / ${tests.length} - "
-              "Daraja: ${question['level'].toString().toUpperCase()}",
+              selectedLanguage == "Uzbek"
+                  ? "Savol ${current + 1} / ${tests.length} - Daraja: ${question['level'].toString().toUpperCase()}"
+                  : selectedLanguage == "English"
+                  ? "Question ${current + 1} / ${tests.length} - Level: ${question['level'].toString().toUpperCase()}"
+                  : "Вопрос ${current + 1} / ${tests.length} - Уровень: ${question['level'].toString().toUpperCase()}",
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
 
@@ -248,7 +252,12 @@ class _QuizPageState extends State<QuizPage> {
                     maxLines: 3,
 
                     decoration: InputDecoration(
-                      labelText: "Javobingizni yozing",
+                      labelText:
+                          selectedLanguage == "Uzbek"
+                              ? "Javobingizni yozing"
+                              : selectedLanguage == "English"
+                              ? "Write your answer"
+                              : "Напишите свой ответ",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -275,7 +284,17 @@ class _QuizPageState extends State<QuizPage> {
                     ),
                   ),
                   child: Text(
-                    current == tests.length - 1 ? "Yakunlash" : "Keyingi",
+                    current == tests.length - 1
+                        ? selectedLanguage == "Uzbek"
+                            ? "Yakunlash"
+                            : selectedLanguage == "English"
+                            ? "Finish"
+                            : "Завершить"
+                        : selectedLanguage == "Uzbek"
+                        ? "Keyingi"
+                        : selectedLanguage == "English"
+                        ? "Next"
+                        : "Следующий",
                     style: const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),

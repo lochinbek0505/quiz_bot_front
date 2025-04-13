@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quiz_bot/bot-ui/CacheService.dart';
 
 class RatingPage extends StatefulWidget {
   final String examId;
@@ -15,6 +16,7 @@ class RatingPage extends StatefulWidget {
 class _RatingPageState extends State<RatingPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<Map<String, dynamic>> users = [];
+  String selectedLanguage = "";
 
   @override
   void initState() {
@@ -23,6 +25,10 @@ class _RatingPageState extends State<RatingPage> {
   }
 
   Future<void> loadRanking() async {
+    CacheService pref = CacheService();
+
+    selectedLanguage = (await pref.getData("lan"))!;
+
     final querySnapshot =
         await _firestore
             .collection('exams')
@@ -58,7 +64,11 @@ class _RatingPageState extends State<RatingPage> {
         backgroundColor: Colors.blue,
         elevation: 0,
         title: Text(
-          "🏆 Reyting",
+          selectedLanguage == "Uzbek"
+              ? "🏆 Reyting"
+              : selectedLanguage == "English"
+              ? "🏆 Ranking"
+              : "🏆 Рейтинг",
           style: GoogleFonts.poppins(
             fontSize: 26,
             fontWeight: FontWeight.bold,

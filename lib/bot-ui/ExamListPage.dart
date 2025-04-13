@@ -1,10 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import 'CacheService.dart';
 import 'QuizPage.dart';
 
-class ExamListPage extends StatelessWidget {
+class ExamListPage extends StatefulWidget {
+  @override
+  State<ExamListPage> createState() => _ExamListPageState();
+}
+
+class _ExamListPageState extends State<ExamListPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  String selectedLanguage = 'Uzbek';
+
+  Future<void> load() async {
+    CacheService pref = CacheService();
+
+    selectedLanguage = (await pref.getData("lan"))!;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    load();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +34,12 @@ class ExamListPage extends StatelessWidget {
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         leading: SizedBox(),
-        title: const Text(
-          "Imtihonlar",
+        title: Text(
+          selectedLanguage == "Uzbek"
+              ? "Imtihonlar"
+              : selectedLanguage == "English"
+              ? "Exams"
+              : "Экзамены",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -29,7 +53,15 @@ class ExamListPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty)
-            return const Center(child: Text("Imtihonlar topilmadi"));
+            return Center(
+              child: Text(
+                selectedLanguage == "Uzbek"
+                    ? "Imtihonlar topilmadi"
+                    : selectedLanguage == "English"
+                    ? "No exams found"
+                    : "Экзамены не найдены",
+              ),
+            );
 
           final exams = snapshot.data!.docs;
 
@@ -55,7 +87,13 @@ class ExamListPage extends StatelessWidget {
                     backgroundColor: Colors.blue.shade100,
                     child: Icon(Icons.school, color: Colors.blue),
                   ),
-                  subtitle: Text("Imtihon vaqti ${exam['duration']} minut"),
+                  subtitle: Text(
+                    selectedLanguage == "Uzbek"
+                        ? "Imtihon vaqti ${exam['duration']} minut"
+                        : selectedLanguage == "English"
+                        ? "Exam duration is ${exam['duration']} minutes"
+                        : "Продолжительность экзамена ${exam['duration']} минут",
+                  ),
                   title: Text(
                     title,
                     style: theme.textTheme.titleMedium!.copyWith(
