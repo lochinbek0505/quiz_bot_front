@@ -57,7 +57,7 @@ class _RatingPageState extends State<RatingPage> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            GoRouter.of(context).push("/");
+            GoRouter.of(context).go('/');
           },
           icon: Icon(Icons.home, color: Colors.white),
         ),

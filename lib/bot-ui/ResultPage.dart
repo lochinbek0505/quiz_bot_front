@@ -335,7 +335,7 @@ class _ResultPageState extends State<ResultPage> {
                 style: GoogleFonts.poppins(fontSize: 22, color: textColor),
               ),
               const SizedBox(height: 40),
-              widget.score > 80
+              widget.score > 85
                   ? ElevatedButton.icon(
                     onPressed: () {
                       _generateAndUploadPdf(
