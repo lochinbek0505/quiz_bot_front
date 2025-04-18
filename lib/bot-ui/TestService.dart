@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TestService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   Future<void> loadExams() async {
     final querySnapshot = await _firestore.collection('groups').get();
 
@@ -24,6 +25,7 @@ class TestService {
     }
 
     final examData = examDoc.data()!;
+    final count = examData['count'] ?? "";
     final duration = examData['duration'] ?? 60; // daqiqalarda
     final difficulty = examData['difficulty'] ?? "o'rta";
     final examTitle = examData['title'] ?? "Noma'lum";
@@ -48,6 +50,7 @@ class TestService {
       'title': examTitle,
       'difficulty': difficulty,
       'duration': duration,
+      'count': count,
       'tests': tests,
     };
   }

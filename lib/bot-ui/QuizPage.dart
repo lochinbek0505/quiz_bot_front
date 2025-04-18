@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 
@@ -68,11 +69,23 @@ class _QuizPageState extends State<QuizPage> {
     final loadedTests = result['tests'] ?? [];
     print("TEST TEST TEST ${result["duration"]}");
     final examDuration = result['duration'] ?? 60;
+    final count = int.parse(result['count']);
 
     if (mounted) {
+      // Convert to list of maps
+      List<Map<String, dynamic>> testList = List<Map<String, dynamic>>.from(
+        loadedTests,
+      );
+
+      // Shuffle and take 'count' number of tests
+      testList.shuffle(Random());
+
+      final selectedTests = testList.take(count).toList();
+
       setState(() {
-        tests = List<Map<String, dynamic>>.from(loadedTests);
+        tests = selectedTests;
       });
+
       startTimer(examDuration);
     }
   }

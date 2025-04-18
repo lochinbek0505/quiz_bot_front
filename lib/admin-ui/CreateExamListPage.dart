@@ -14,6 +14,7 @@ class CreateExamListPage extends StatefulWidget {
 class _CreateExamListPageState extends State<CreateExamListPage> {
   final ExamService _examService = ExamService();
   final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _random_count = TextEditingController();
 
   Future<void> _showExamDialog({
     String? examId,
@@ -21,7 +22,7 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
   }) async {
     _titleController.text = currentData?['title'] ?? '';
     _durationController.text = currentData?['duration']?.toString() ?? '';
-
+    _random_count.text = currentData?['count'] ?? '';
     await showDialog(
       context: context,
       builder:
@@ -40,6 +41,15 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
                       controller: _titleController,
                       decoration: const InputDecoration(
                         labelText: 'Imtihon nomi',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    TextField(
+                      controller: _random_count,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Nechta imtihon ajratib olishi kerakligi',
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -67,7 +77,7 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
                   final duration = int.tryParse(
                     _durationController.text.trim(),
                   );
-
+                  final count = _random_count.text.trim().toString();
                   if (title.isEmpty || duration == null || duration <= 0) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -83,11 +93,13 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
                     await _examService.createExam({
                       'title': title,
                       'duration': duration,
+                      'count': count,
                     });
                   } else {
                     await _examService.editExam(examId, {
                       'title': title,
                       'duration': duration,
+                      'count': count,
                     });
                   }
 
@@ -122,7 +134,7 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
               final exam = exams[index];
               final title = exam['title'];
               final duration = exam['duration']; // vaqtni ham chiqaramiz
-
+              final count = exam['count'];
               return Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12.0,
@@ -150,7 +162,7 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
                       ),
                     ),
                     subtitle: Text(
-                      'Vaqti: $duration daqiqa',
+                      'Vaqti: $duration daqiqa , $count ta random savol',
                       style: TextStyle(color: Colors.grey.shade700),
                     ),
                     trailing: SizedBox(
@@ -166,6 +178,7 @@ class _CreateExamListPageState extends State<CreateExamListPage> {
                                 currentData: {
                                   'title': title,
                                   'duration': duration,
+                                  'count': count,
                                 },
                               );
                             },
