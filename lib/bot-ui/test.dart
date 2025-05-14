@@ -1,112 +1,24 @@
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // To copy the link
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:quiz_bot/bot-ui/RatePage.dart';
+import 'dart:typed_data';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
-import 'CacheService.dart';
-
-class ResultPage extends StatefulWidget {
-  final int score;
-  final String examId;
-  final String name;
-
-  const ResultPage({
-    Key? key,
-    required this.score,
-    required this.examId,
-    required this.name,
-  }) : super(key: key);
+class PdfPreviewPage extends StatefulWidget {
+  const PdfPreviewPage({Key? key}) : super(key: key);
 
   @override
-  State<ResultPage> createState() => _ResultPageState();
+  State<PdfPreviewPage> createState() => _PdfPreviewPageState();
 }
 
-class _ResultPageState extends State<ResultPage> {
-  String getResultText() {
-    if (widget.score >= 90)
-      return selectedLanguage == "Uzbek"
-          ? "🔥 Ajoyib natija!"
-          : selectedLanguage == "English"
-          ? "🔥 Excellent result!"
-          : "🔥 Отличный результат!";
-    if (widget.score >= 75)
-      return selectedLanguage == "Uzbek"
-          ? "✅ Yaxshi ish!"
-          : selectedLanguage == "English"
-          ? "✅ Good job!"
-          : "✅ Хорошая работа!";
-    if (widget.score >= 50)
-      return selectedLanguage == "Uzbek"
-          ? "💪 Harakat qilish kerak"
-          : selectedLanguage == "English"
-          ? "💪 Need more effort"
-          : "💪 Нужно больше усилий";
-    return selectedLanguage == "Uzbek"
-        ? "😥 Ko‘proq mashq qil"
-        : selectedLanguage == "English"
-        ? "😥 Practice more"
-        : "😥 Практикуйтесь больше";
-  }
-
-  String selectedLanguage = "";
-
-  void _showDownloadLinkDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            selectedLanguage == "Uzbek"
-                ? "Yuklab olish linki"
-                : selectedLanguage == "English"
-                ? "Download link"
-                : "Ссылка для скачивания",
-          ),
-          content: Row(
-            children: [
-              Expanded(child: SelectableText(downloadUrl)),
-              IconButton(
-                icon: Icon(Icons.copy),
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: downloadUrl));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        selectedLanguage == "Uzbek"
-                            ? "Link nusxalandi!"
-                            : selectedLanguage == "English"
-                            ? "Link copied!"
-                            : "Ссылка скопирована!",
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Yopish'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Color getColor() {
-    if (widget.score >= 90) return Colors.greenAccent;
-    if (widget.score >= 75) return Colors.blueAccent;
-    if (widget.score >= 50) return Colors.orangeAccent;
-    return Colors.redAccent;
-  }
-
-  String downloadUrl = '';
+class _PdfPreviewPageState extends State<PdfPreviewPage> {
   bool isLoading = false;
+  String? downloadUrl;
+  String selectedLanguage = "Uzbek"; // or "Uzbek", "Russian"
+
   Future<void> _generateAndUploadPdf(String name, String author) async {
     setState(() {
       isLoading = true;
@@ -275,8 +187,8 @@ class _ResultPageState extends State<ResultPage> {
 
       setState(() {
         downloadUrl = url;
-        _showDownloadLinkDialog(context);
       });
+      _showDownloadLinkDialog();
     } catch (e) {
       print("Xatolik: $e");
     } finally {
@@ -286,129 +198,57 @@ class _ResultPageState extends State<ResultPage> {
     }
   }
 
-
-  Future<void> load() async {
-    CacheService pref = CacheService();
-
-    selectedLanguage = (await pref.getData("lan"))!;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    load();
+  void _showDownloadLinkDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text("PDF Sertifikat yuklandi"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Quyidagi havola orqali yuklab olishingiz mumkin:"),
+                const SizedBox(height: 8),
+                SelectableText(
+                  downloadUrl ?? "",
+                  style: const TextStyle(color: Colors.blue),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: downloadUrl ?? ""));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Link nusxalandi!")),
+                  );
+                },
+                child: const Text("📋 Nusxalash"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Yopish"),
+              ),
+            ],
+          ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final textColor = getColor();
-    final resultText = getResultText();
-
     return Scaffold(
-      backgroundColor: const Color(0xFFEDF2F7), // Light background for daytime
+      appBar: AppBar(title: const Text("PDF Test")),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.emoji_events, size: 100, color: textColor),
-              const SizedBox(height: 20),
-              Text(
-                selectedLanguage == "Uzbek"
-                    ? "Natijangiz:"
-                    : selectedLanguage == "English"
-                    ? "Your Result:"
-                    : "Ваш результат:",
-                style: GoogleFonts.poppins(
-                  fontSize: 28,
-                  color: Colors.black, // Dark color for text
-                  fontWeight: FontWeight.bold,
+        child:
+            isLoading
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                  onPressed: () {
+                    _generateAndUploadPdf("Lochinbek", "Oztech Academy");
+                  },
+                  child: const Text("Generate PDF"),
                 ),
-              ),
-
-              const SizedBox(height: 10),
-              Text(
-                "${widget.score}%",
-                style: GoogleFonts.poppins(
-                  fontSize: 64,
-                  color: textColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                resultText,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(fontSize: 22, color: textColor),
-              ),
-              const SizedBox(height: 40),
-              widget.score > 85
-                  ? ElevatedButton.icon(
-                    onPressed: () {
-                      _generateAndUploadPdf(
-                        widget.name,
-                        "G'ulomjon Abdullayev",
-                      );
-                    },
-                    icon: const Icon(Icons.file_download),
-                    label: Text(
-                      selectedLanguage == "Uzbek"
-                          ? "Sertifikatni yuklab olish"
-                          : selectedLanguage == "English"
-                          ? "Download Certificate"
-                          : "Скачать сертификат",
-                      style: GoogleFonts.poppins(fontSize: 18),
-                    ),
-
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: textColor,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 14,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  )
-                  : SizedBox(),
-              SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (builder) => RatingPage(examId: widget.examId),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.star_rate),
-                label: Text(
-                  selectedLanguage == "Uzbek"
-                      ? "Reyting"
-                      : selectedLanguage == "English"
-                      ? "Ranking"
-                      : "Рейтинг",
-                  style: GoogleFonts.poppins(fontSize: 18),
-                ),
-
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: textColor,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 14,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
