@@ -291,6 +291,10 @@ class _ResultPageState extends State<ResultPage> {
     CacheService pref = CacheService();
 
     selectedLanguage = (await pref.getData("lan"))!;
+
+    setState(() {
+
+    });
   }
 
   @override
